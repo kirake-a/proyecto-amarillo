@@ -1,6 +1,12 @@
 import pytest
 from unittest.mock import Mock, patch
 import customtkinter as ctk
+
+import sys
+import os
+
+sys.path.append(os.path.abspath(os.path.dirname(__file__) + "/../.."))
+
 from Views.FileLineCounterView import FileLineCounterView
 from Controllers.FileLineCounterController import FileLineCounterController
 from Models.FileLineCounterModel import FileLineCounterModel
