@@ -4,6 +4,8 @@ from .PythonStandardValidatorController import (
 from .LineAnalyzerController import LineAnalyzerController
 from FileReader import FileReader
 
+import re
+
 
 class FileLineCounterController:
     """
@@ -79,11 +81,58 @@ class FileLineCounterController:
         file_lines = self.get_file_lines(file)
         is_valid = self.__validate_file_compliance_with_standard(file_lines)
 
+
         if is_valid:
-            physical_line_count = self.__count_physical_file_lines(file_lines)
-            logical_line_count = self.__count_logical_file_lines(file_lines)
+
+            self.get_class_metrics(file_lines)
+
+            physical_line_count = self.__count_physical_lines(file_lines)
+            logical_line_count = self.__count_logical_lines(file_lines)
             return logical_line_count, physical_line_count
+
         return "error", "Doesn't comply with Standard"
+    
+    def get_class_metrics(self, file_lines):
+        """
+        Reads the lines of a given file and obtains the metrics
+        from each class.
+        """
+        class_pattern = re.compile(r'^class\s+\w+\s*.*:')
+        inside_class = False
+        class_lines = []
+        class_metrics = []
+        class_name = ""
+
+        for line in file_lines:
+            if class_pattern.match(line):
+
+                # Este if se utiliza en dado caso que exista mas de una clase
+                # en un archivo, donde se verifica si el array class_lines
+                # ya tiene datos adentro (lo que indica que se encontró la primera clase)
+                # En pocas palabras, si class_lines tiene algo adentro, es True
+
+                if class_lines:
+                    
+                    physical_line_count = self.__count_physical_lines(class_lines)
+                    logical_line_count = self.__count_logical_lines(class_lines)
+
+                    class_metrics.append((class_name, physical_line_count, logical_line_count))
+                    class_lines = []
+
+                class_name = line[6:-2]
+                inside_class = True
+
+            if inside_class:
+
+                class_lines.append(line)
+
+        if inside_class and class_lines:
+            physical_line_count = self.__count_physical_lines(class_lines)
+            logical_line_count = self.__count_logical_lines(class_lines)
+
+            class_metrics.append((class_name, physical_line_count, logical_line_count))
+        
+        print(class_metrics)
 
     def get_file_lines(self, file_path):
         """
@@ -99,19 +148,19 @@ class FileLineCounterController:
         standard_validator = PythonStandardValidatorController(file_lines)
         return standard_validator.validate_compliance_with_standard()
 
-    def __count_logical_file_lines(self, file_lines):
+    def __count_logical_lines(self, file_lines):
         """
         Counts the logical lines of code in a file.
         """
         logical_file_line_counter = LineAnalyzerController(file_lines)
-        return logical_file_line_counter.count_logical_file_lines()
+        return logical_file_line_counter.count_logical_lines()
 
-    def __count_physical_file_lines(self, file_lines):
+    def __count_physical_lines(self, file_lines):
         """
         Counts the physical lines of code in a file.
         """
         physical_file_line_counter = LineAnalyzerController(file_lines)
-        return physical_file_line_counter.count_physical_file_lines()
+        return physical_file_line_counter.count_physical_lines()
 
     def manage_model_changes(self):
         """

@@ -3,24 +3,24 @@ import re
 
 class LineAnalyzerController:
     """
-    Analyzes a file's content to count physical and logical lines of code.
+    Analyzes a code's content to count physical and logical lines of code.
     """
 
-    def __init__(self, file_content):
+    def __init__(self, content):
         """
-        Initializes the LineAnalyzerController with file content.
+        Initializes the LineAnalyzerController with the code content.
         """
-        self.__file_content = file_content
+        self.__content = content
 
-    def count_physical_file_lines(self):
+    def count_physical_lines(self):
         """
-        Counts the number of physical lines of code in the file,
+        Counts the number of physical lines of code,
         ignoring blank lines, comments, and docstrings.
         """
         physical_line_count = 0
         in_docstring = False
 
-        for line in self.__file_content:
+        for line in self.__content:
             stripped_line = line.strip()
 
             if not stripped_line or stripped_line.startswith("#"):
@@ -42,9 +42,9 @@ class LineAnalyzerController:
 
         return physical_line_count
 
-    def count_logical_file_lines(self):
+    def count_logical_lines(self):
         """
-        Counts the number of logical lines of code in the file,
+        Counts the number of logical lines of code,
         considering only control statements, method definitions,
           and class definitions.
         Counts nested control structures (e.g., if inside a for).
@@ -53,7 +53,7 @@ class LineAnalyzerController:
         logical_line_count = 0
         in_docstring = False
 
-        for line in self.__file_content:
+        for line in self.__content:
             stripped_line = line.strip()
 
             if not stripped_line or stripped_line.startswith("#"):
