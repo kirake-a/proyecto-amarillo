@@ -128,7 +128,8 @@ class FileLineCounterView(ctk.CTk):
         The table headers include 'Filename', 'Logical Lines', and
         'Physical Lines'.
         """
-        headers = ["Filename", "Logical Lines", "Physical Lines"]
+        headers = ["Project", "Class", "Methods", "Logical Lines", "Physical Lines", "Total Logical Lines in Project",
+                   "Total Physical Lines in Project"]
         row_padding, col_padding = 5, 10
 
         for col_index, header in enumerate(headers):
@@ -149,23 +150,27 @@ class FileLineCounterView(ctk.CTk):
         """
         row_padding, col_padding = 5, 10
 
-        for row_index, (filename, metrics) in enumerate(
+        for row_index, (file_name, metrics) in enumerate(
                 metric_results.items(), start=1):
-            logical_count, physical_count = metrics
+            logical_count, physical_count, method_count = metrics
 
-            ctk.CTkLabel(table_frame, text=filename).grid(
+            ctk.CTkLabel(table_frame, text=file_name).grid(
                 row=row_index, column=0, padx=col_padding,
                 pady=row_padding
             )
-            ctk.CTkLabel(table_frame, text=str(logical_count)).grid(
-                row=row_index, column=1, padx=col_padding,
-                pady=row_padding
-            )
-            ctk.CTkLabel(table_frame, text=str(physical_count)).grid(
+            ctk.CTkLabel(table_frame, text=str(method_count)).grid(
                 row=row_index, column=2, padx=col_padding,
                 pady=row_padding
             )
-
+            ctk.CTkLabel(table_frame, text=str(logical_count)).grid(
+                row=row_index, column=3, padx=col_padding,
+                pady=row_padding
+            )
+            ctk.CTkLabel(table_frame, text=str(physical_count)).grid(
+                row=row_index, column=4, padx=col_padding,
+                pady=row_padding
+            )
+        
     def set_controller(self, controller):
         """
         Sets the controller for handling file path processing
