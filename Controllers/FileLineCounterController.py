@@ -45,7 +45,8 @@ class FileLineCounterController:
     def process_file_path(self, file_path):
         """
         Processes the given file path, determining whether it is a directory
-        or a Python file, then counts its logical and physical lines.
+        or a Python file, then counts it's logical and physical lines
+        in a class and sum the total lines.
         """
         path_object = Path(file_path)
         line_counting_results = {}
@@ -58,35 +59,39 @@ class FileLineCounterController:
                 file_metrics = self.get_file_metrics(path_object)
                 line_counting_results[path_object] = file_metrics
             else:
-                line_counting_results[path_object] = ("error",
-                                                      "Not a Python file")
+                line_counting_results[path_object] = \
+                    ("error","Not a Python file", "None")
+                
+        line_counting_results["Total"] = \
+        self.calculate_total_lines(line_counting_results)
 
         self.__file_line_counter_model.set_line_count_results(
             line_counting_results)
         
-        self.calculate_total_lines(line_counting_results)
+        #self.calculate_total_lines(line_counting_results)
         
     def calculate_total_lines(self, line_counting_results):
         """
-        Sum the total logical and physical lines of all file classes processed.
+        Sum the total logical and physical lines 
+        of all file classes processed.
         """
         total_logical_lines = 0
         total_physical_lines = 0
 
         for file_path, metrics in line_counting_results.items():
-            if isinstance(metrics, tuple) and len(metrics) == 2:
-                logical_lines, physical_lines = metrics
-                if isinstance(logical_lines, int) and isinstance(physical_lines, int):
+            if isinstance(metrics, tuple) and len(metrics) == 4:
+                class_name, logical_lines, physical_lines, \
+                methods_count = metrics
+                if isinstance(logical_lines, int) \
+                and isinstance(physical_lines, int):
                     total_logical_lines += logical_lines
                     total_physical_lines += physical_lines
-
-        print(f"Total de líneas lógicas: {total_logical_lines}") 
-        print(f"Total de líneas físicas: {total_physical_lines}")  
-
+        return "", total_logical_lines, total_physical_lines, ""
+ 
 
     def __process_directory(self, directory, line_counting_results):
         """
-        Recursively processes a directory to count lines in all Python files.
+        Recursively processes a directory to count lines in all Python classes.
         """
         for file in directory.iterdir():
             if file.is_file() and file.suffix == ".py":
@@ -97,7 +102,8 @@ class FileLineCounterController:
 
     def get_file_metrics(self, file):
         """
-        Retrieves the logical and physical line count of a Python file.
+        Retrieves the logical and physical line count of a Python class.
+        Retrieves the class name and methods count of a Python class.
         """
         file_lines = self.get_file_lines(file)
         is_valid = self.__validate_file_compliance_with_standard(file_lines)
@@ -105,62 +111,15 @@ class FileLineCounterController:
 
         if is_valid:
 
-            self.get_class_metrics(file_lines, file)
-
+            class_name = self.__extract_class(file_lines)
             physical_line_count = self.__count_physical_lines(file_lines)
             logical_line_count = self.__count_logical_lines(file_lines)
             methods_count = self.__count_methods(file_lines)
-            return logical_line_count, physical_line_count, methods_count
+            return class_name, logical_line_count, \
+            physical_line_count, methods_count
 
-        return "error", "Doesn't comply with Standard"
+        return "No class", "Doesn't comply with Standard", "None", "None" 
     
-    def get_class_metrics(self, file_lines, file_path):
-        """
-        Reads the lines of a given file and obtains the metrics
-        from each class.
-        """
-        class_pattern = re.compile(r'^class\s+\w+\s*.*:')
-        inside_class = False
-        class_lines = []
-        class_metrics = []
-        class_name = ""
-        project_name = file_path.parent.name 
-        print(f"{project_name}")
-
-        for line in file_lines:
-            if class_pattern.match(line):
-
-                # Este if se utiliza en dado caso que exista mas de una clase
-                # en un archivo, donde se verifica si el array class_lines
-                # ya tiene datos adentro (lo que indica que se encontró la primera clase)
-                # En pocas palabras, si class_lines tiene algo adentro, es True
-
-                if class_lines:
-                    
-                    physical_line_count = self.__count_physical_lines(class_lines)
-                    logical_line_count = self.__count_logical_lines(class_lines)
-                    methods_count = self.__count_methods(class_lines)
-
-                    class_metrics.append((class_name, physical_line_count, logical_line_count, methods_count))
-                    class_lines = []
-
-                class_name = line[6:-2]
-                inside_class = True
-
-            if inside_class:
-
-                class_lines.append(line)
-
-        if inside_class and class_lines:
-            physical_line_count = self.__count_physical_lines(class_lines)
-            logical_line_count = self.__count_logical_lines(class_lines)
-            methods_count = self.__count_methods(class_lines)
-
-            class_metrics.append((class_name, physical_line_count, logical_line_count, methods_count))
-        print(class_metrics)
-        
-        return class_metrics
-
     def get_file_lines(self, file_path):
         """
         Reads the lines of a given file.
@@ -195,6 +154,13 @@ class FileLineCounterController:
         """
         methods_counter = LineAnalyzerController(file_lines)
         return methods_counter.count_methods()
+    
+    def __extract_class(self, file_lines):
+        """
+        Extract the class name.
+        """
+        class_name_extractor = LineAnalyzerController(file_lines)
+        return class_name_extractor.extract_class()
 
     def manage_model_changes(self):
         """

@@ -93,11 +93,8 @@ class LineAnalyzerController:
     
     def count_methods(self):
         """
-        Counts the number of logical lines of code,
-        considering only control statements, method definitions,
-          and class definitions.
-        Counts nested control structures (e.g., if inside a for).
-        Handles multiple control structures in the same line.
+        Counts the number of methods in a class,
+        considering only  method definitions.
         """
         methods_count = 0 
 
@@ -107,4 +104,17 @@ class LineAnalyzerController:
             if stripped_line.startswith("def "):
                 methods_count += 1
        
-        return methods_count    
+        return methods_count   
+
+    def extract_class(self):
+        """
+        Extract the name class of each file.
+        """
+        for line in self.__content:
+            stripped_line = line.strip()
+
+            if stripped_line.startswith("class "):
+                class_name = line[6:-2]
+                return class_name
+            
+        return "No class" 

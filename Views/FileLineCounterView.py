@@ -128,8 +128,8 @@ class FileLineCounterView(ctk.CTk):
         The table headers include 'Filename', 'Logical Lines', and
         'Physical Lines'.
         """
-        headers = ["Project", "Class", "Methods", "Logical Lines", "Physical Lines", "Total Logical Lines in Project",
-                   "Total Physical Lines in Project"]
+        headers = ["File", "Class", "Methods", 
+                   "Logical Lines", "Physical Lines",]
         row_padding, col_padding = 5, 10
 
         for col_index, header in enumerate(headers):
@@ -146,18 +146,25 @@ class FileLineCounterView(ctk.CTk):
 
         This method iterates over the metric results and displays
         the filename along with its corresponding logical
-        and physical line counts.
+        and physical line counts, methods counts and the total
+        the total number of logical lines and physical lines in the program.
         """
         row_padding, col_padding = 5, 10
 
         for row_index, (file_name, metrics) in enumerate(
                 metric_results.items(), start=1):
-            logical_count, physical_count, method_count = metrics
+            class_name, logical_count, \
+            physical_count, method_count = metrics
 
             ctk.CTkLabel(table_frame, text=file_name).grid(
                 row=row_index, column=0, padx=col_padding,
                 pady=row_padding
             )
+            ctk.CTkLabel(table_frame, text=class_name).grid(
+                row=row_index, column=1, padx=col_padding,
+                pady=row_padding
+            )
+         
             ctk.CTkLabel(table_frame, text=str(method_count)).grid(
                 row=row_index, column=2, padx=col_padding,
                 pady=row_padding
