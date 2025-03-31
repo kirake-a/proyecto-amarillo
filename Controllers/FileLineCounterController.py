@@ -63,30 +63,26 @@ class FileLineCounterController:
                     ("error","Not a Python file", "None")
                 
         line_counting_results["Total"] = \
-        self.calculate_total_lines(line_counting_results)
+        self.calculate_total_physical_lines(line_counting_results)
 
         self.__file_line_counter_model.set_line_count_results(
             line_counting_results)
         
-        #self.calculate_total_lines(line_counting_results)
         
-    def calculate_total_lines(self, line_counting_results):
+    def calculate_total_physical_lines(self, line_counting_results):
         """
-        Sum the total logical and physical lines 
-        of all file classes processed.
+        Sum the total physical lines of 
+        all file classes processed.
         """
-        total_logical_lines = 0
         total_physical_lines = 0
 
         for file_path, metrics in line_counting_results.items():
             if isinstance(metrics, tuple) and len(metrics) == 4:
                 class_name, logical_lines, physical_lines, \
                 methods_count = metrics
-                if isinstance(logical_lines, int) \
-                and isinstance(physical_lines, int):
-                    total_logical_lines += logical_lines
+                if isinstance(physical_lines, int):
                     total_physical_lines += physical_lines
-        return "", total_logical_lines, total_physical_lines, ""
+        return "", "", total_physical_lines, ""
  
 
     def __process_directory(self, directory, line_counting_results):
@@ -118,7 +114,7 @@ class FileLineCounterController:
             return class_name, logical_line_count, \
             physical_line_count, methods_count
 
-        return "No class", "Doesn't comply with Standard", "None", "None" 
+        return "Doesn't comply with Standard", "None", "None", ""
     
     def get_file_lines(self, file_path):
         """

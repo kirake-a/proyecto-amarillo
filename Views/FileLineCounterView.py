@@ -125,11 +125,12 @@ class FileLineCounterView(ctk.CTk):
         """
         Adds headers to the result table.
 
-        The table headers include 'Filename', 'Logical Lines', and
-        'Physical Lines'.
+        The table headers include 'Filename', 'Class',
+        'Total Methods', 'Physical Lines per Class'
+        and 'Total Physical Lines in the Program'.
         """
         headers = ["File", "Class", "Methods", 
-                   "Logical Lines", "Physical Lines",]
+                    "Physical Lines",]
         row_padding, col_padding = 5, 10
 
         for col_index, header in enumerate(headers):
@@ -169,12 +170,8 @@ class FileLineCounterView(ctk.CTk):
                 row=row_index, column=2, padx=col_padding,
                 pady=row_padding
             )
-            ctk.CTkLabel(table_frame, text=str(logical_count)).grid(
-                row=row_index, column=3, padx=col_padding,
-                pady=row_padding
-            )
             ctk.CTkLabel(table_frame, text=str(physical_count)).grid(
-                row=row_index, column=4, padx=col_padding,
+                row=row_index, column=3, padx=col_padding,
                 pady=row_padding
             )
         
