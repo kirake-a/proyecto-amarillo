@@ -63,5 +63,5 @@ def test_line_counting(file_content, expected_physical, expected_logical):
     """
     analyzer = LineAnalyzerController(file_content)
 
-    assert analyzer.count_physical_file_lines() == expected_physical
-    assert analyzer.count_logical_file_lines() == expected_logical
+    assert analyzer.count_physical_lines() == expected_physical
+    assert analyzer.count_logical_lines() == expected_logical

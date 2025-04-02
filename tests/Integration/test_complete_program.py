@@ -61,25 +61,30 @@ def test_filepath_with_single_file(start_tkinter_app, tmp_path):
     canvas = result_window.winfo_children()[0]
     table_frame = canvas.winfo_children()[0]
 
-    headers = table_frame.winfo_children()[:3]
+    headers = table_frame.winfo_children()[:4]
     assert headers[0].cget(
-        "text") == "Filename", "Filename header is incorrect!"
+        "text") == "File", "Filename header is incorrect!"
     assert headers[1].cget(
-        "text") == "Logical Lines", "Logical Lines header is incorrect!"
+        "text") == "Class", "Class header is incorrect!"
     assert headers[2].cget(
+        "text") == "Methods", "Methods header is incorrect!"
+    assert headers[3].cget(
         "text") == "Physical Lines", "Physical Lines header is incorrect!"
 
     rows = table_frame.winfo_children()[3:]
-    assert len(rows) == 3, "Incorrect number of rows in the table!"
+    assert len(rows) == 9, "Incorrect number of rows in the table!"
 
-    filename_label = rows[0]
-    logical_lines_label = rows[1]
-    physical_lines_label = rows[2]
+    filename_label = rows[1]
+    class_label = rows[2]
+    methods_label = rows[3]
+    physical_lines_label = rows[4]
 
     assert str(filename_label.cget("text")) == str(
         test_file), "Filename in the table is incorrect!"
-    assert logical_lines_label.cget(
-        "text") == "0", "Logical line count is incorrect!"
+    assert class_label.cget(
+        "text") == "No class", "Class in the table is incorrect!"
+    assert methods_label.cget(
+        "text") == "0", "Methods count is incorrect!"
     assert physical_lines_label.cget(
         "text") == "2", "Physical line count is incorrect!"
 
@@ -180,16 +185,18 @@ def test_file_path_with_no_python_files(start_tkinter_app, tmp_path):
     canvas = result_window.winfo_children()[0]
     table_frame = canvas.winfo_children()[0]
 
-    headers = table_frame.winfo_children()[:3]
+    headers = table_frame.winfo_children()[:4]
     assert headers[0].cget(
-        "text") == "Filename", "Filename header is incorrect!"
+        "text") == "File", "Filename header is incorrect!"
     assert headers[1].cget(
-        "text") == "Logical Lines", "Logical Lines header is incorrect!"
+        "text") == "Class", "Class header is incorrect!"
     assert headers[2].cget(
+        "text") == "Methods", "Methods header is incorrect!"
+    assert headers[3].cget(
         "text") == "Physical Lines", "Physical Lines header is incorrect!"
 
     rows = table_frame.winfo_children()[3:]
-    assert len(rows) == 0, "Should have 0 rows"
+    assert len(rows) == 5, "Should have 5 rows"
 
 
 # def test_filepath_with_nested_directories(start_tkinter_app, tmp_path):

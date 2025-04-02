@@ -106,7 +106,7 @@ def test_process_file_path_with_directory(mock_path, controller):
                       return_value=None) as mock_process_dir:
         controller.process_file_path("test_dir")
 
-    mock_process_dir.assert_called_once_with(mock_directory, {})
+    mock_process_dir.assert_called_once_with(mock_directory, {'Total': ('', '', 0, '')})
 
 
 @patch("Controllers.FileLineCounterController.Path")
@@ -122,9 +122,10 @@ def test_process_file_path_invalid_file(mock_path, controller):
     controller.process_file_path("test.txt")
 
     expected_error_message = "Not a Python file"
+
     (controller.get_file_line_counter_model()
      .set_line_count_results.assert_called_once_with(
-         {mock_invalid_file: ("error", expected_error_message)}
+         {mock_invalid_file: ('error', expected_error_message, 'None'), 'Total': ('', '', 0, '')}
     ))
 
 
@@ -140,14 +141,14 @@ def test_get_file_metrics_valid_file(controller):
         "_FileLineCounterController__validate_file_compliance_with_standard",
                           return_value=True):
             with patch.object(controller,
-            "_FileLineCounterController__count_logical_file_lines",
+            "_FileLineCounterController__count_logical_lines",
                               return_value=5):
                 with patch.object(controller,
-                "_FileLineCounterController__count_physical_file_lines",
+                "_FileLineCounterController__count_physical_lines",
                                   return_value=10):
                     result = controller.get_file_metrics(mock_file)
 
-    assert result == (5, 10)
+    assert result == ('No class', 5, 10, 0)
 
 
 def test_get_file_metrics_invalid_file(controller):
@@ -163,4 +164,4 @@ def test_get_file_metrics_invalid_file(controller):
                           return_value=False):
             result = controller.get_file_metrics(mock_file)
 
-    assert result == ("error", "Doesn't comply with Standard")
+    assert result == ("Doesn't comply with Standard", 'None', 'None', '')
