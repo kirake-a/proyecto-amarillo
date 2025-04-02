@@ -41,8 +41,25 @@ def test_filepath_with_single_file(start_tkinter_app, tmp_path):
     """
     controller, view, model = start_tkinter_app
 
+    code_example = "from pathlib import Path\n\n" \
+                 "class Ejemplo:\n" \
+                 "    def __init__(self, param1, param2):\n" \
+                 "        \"\"\"Este es un docstring de una sola línea.\"\"\"\n" \
+                 "        self.param1 = param1\n" \
+                 "        self.param2 = param2\n" \
+                 "        self.path_object = Path(param1)\n" \
+                 "        self.line_counting_results = {}\n\n" \
+                 "        print('Hola, mundo')\n\n" \
+                 "    \"\"\"\n" \
+                 "    Este es un docstring\n" \
+                 "    de múltiples líneas.\n" \
+                 "    \"\"\"\n\n" \
+                 "    def despedida(self):\n" \
+                 "        print('Adiós, mundo')\n"
+
+
     test_file = tmp_path / "test_script.py"
-    test_file.write_text("print('Hello, World!')\nprint('Goodbye!')")
+    test_file.write_text(code_example)
 
     view.file_entry.insert(0, str(test_file))
 
@@ -82,11 +99,11 @@ def test_filepath_with_single_file(start_tkinter_app, tmp_path):
     assert str(filename_label.cget("text")) == str(
         test_file), "Filename in the table is incorrect!"
     assert class_label.cget(
-        "text") == "No class", "Class in the table is incorrect!"
+        "text") == "Ejemplo", "Class in the table is incorrect!"
     assert methods_label.cget(
-        "text") == "0", "Methods count is incorrect!"
+        "text") == "2", "Methods count is incorrect!"
     assert physical_lines_label.cget(
-        "text") == "2", "Physical line count is incorrect!"
+        "text") == "10", "Physical line count is incorrect!"
 
 
 # def test_file_path_with_multiple_files(start_tkinter_app, tmp_path):

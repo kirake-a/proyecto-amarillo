@@ -146,9 +146,12 @@ def test_get_file_metrics_valid_file(controller):
                 with patch.object(controller,
                 "_FileLineCounterController__count_physical_lines",
                                   return_value=10):
-                    result = controller.get_file_metrics(mock_file)
+                    with patch.object(controller,
+                    "_FileLineCounterController__count_methods",
+                                    return_value=1):
+                        result = controller.get_file_metrics(mock_file)
 
-    assert result == ('No class', 5, 10, 0)
+    assert result == ('No class', 5, 10, 1)
 
 
 def test_get_file_metrics_invalid_file(controller):
