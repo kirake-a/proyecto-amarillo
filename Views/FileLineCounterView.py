@@ -3,11 +3,11 @@ import customtkinter as ctk
 
 class FileLineCounterView(ctk.CTk):
     """
-    A GUI for counting logical and physical lines in Python files.
+    A GUI for counting physical lines and methods per class in Python files.
 
     This class provides an interface for the user to input a file path and
-    retrieve metrics about the logical and physical lines of code in a Python
-    project.
+    retrieve metrics about the physical lines and methods per class
+    of code in a Python project.
     It renders the necessary UI elements, including a file entry, button,
     and result display.
     """
@@ -83,7 +83,7 @@ class FileLineCounterView(ctk.CTk):
         """
         Displays the metric results in a new window.
         This method generates a new window containing a scrollable table
-        displaying thefilename along with its logical and physical line
+        displaying thefilename along with its physical line and methods 
         counts.
         """
         self.__create_result_window()
@@ -146,16 +146,15 @@ class FileLineCounterView(ctk.CTk):
         Populates the result table with the metric data.
 
         This method iterates over the metric results and displays
-        the filename along with its corresponding logical
-        and physical line counts, methods counts and the total
-        the total number of logical lines and physical lines in the program.
+        the filename along with its corresponding physical line counts,
+        methods counts and the total number of physical lines
+        in the proyect.
         """
         row_padding, col_padding = 5, 10
 
         for row_index, (file_name, metrics) in enumerate(
                 metric_results.items(), start=1):
-            class_name, logical_count, \
-            physical_count, method_count = metrics
+            class_name, physical_count, method_count = metrics
 
             ctk.CTkLabel(table_frame, text=file_name).grid(
                 row=row_index, column=0, padx=col_padding,

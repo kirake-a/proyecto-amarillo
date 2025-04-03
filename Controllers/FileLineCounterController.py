@@ -9,7 +9,8 @@ import re
 
 class FileLineCounterController:
     """
-    Controller for counting logical and physical lines in Python files.
+    Controller for counting physical lines and methods per class 
+    in Python files.
     It processes individual files or directories and validates compliance
     with Python coding standards.
     """
@@ -45,8 +46,8 @@ class FileLineCounterController:
     def process_file_path(self, file_path):
         """
         Processes the given file path, determining whether it is a directory
-        or a Python file, then counts it's logical and physical lines
-        in a class and sum the total lines.
+        or a Python file, then counts it's physical lines in a class and sum 
+        the total physical lines in the proyect.
         """
         path_object = Path(file_path)
         line_counting_results = {}
@@ -71,18 +72,16 @@ class FileLineCounterController:
         
     def calculate_total_physical_lines(self, line_counting_results):
         """
-        Sum the total physical lines of 
-        all file classes processed.
+        Sum the total physical lines of all file classes processed.
         """
         total_physical_lines = 0
 
         for file_path, metrics in line_counting_results.items():
-            if isinstance(metrics, tuple) and len(metrics) == 4:
-                class_name, logical_lines, physical_lines, \
-                methods_count = metrics
+            if isinstance(metrics, tuple) and len(metrics) == 3:
+                class_name, physical_lines, methods_count = metrics
                 if isinstance(physical_lines, int):
                     total_physical_lines += physical_lines
-        return "", "", total_physical_lines, ""
+        return "", total_physical_lines, ""
  
 
     def __process_directory(self, directory, line_counting_results):
@@ -98,7 +97,7 @@ class FileLineCounterController:
 
     def get_file_metrics(self, file):
         """
-        Retrieves the logical and physical line count of a Python class.
+        Retrieves the physical line count of a Python class.
         Retrieves the class name and methods count of a Python class.
         """
         file_lines = self.get_file_lines(file)
@@ -109,12 +108,10 @@ class FileLineCounterController:
 
             class_name = self.__extract_class(file_lines)
             physical_line_count = self.__count_physical_lines(file_lines)
-            logical_line_count = self.__count_logical_lines(file_lines)
             methods_count = self.__count_methods(file_lines)
-            return class_name, logical_line_count, \
-            physical_line_count, methods_count
+            return class_name, physical_line_count, methods_count
 
-        return "Doesn't comply with Standard", "None", "None", ""
+        return "Doesn't comply with Standard", "None", "None"
     
     def get_file_lines(self, file_path):
         """
@@ -129,13 +126,6 @@ class FileLineCounterController:
         """
         standard_validator = PythonStandardValidatorController(file_lines)
         return standard_validator.validate_compliance_with_standard()
-
-    def __count_logical_lines(self, file_lines):
-        """
-        Counts the logical lines of code in a class.
-        """
-        logical_file_line_counter = LineAnalyzerController(file_lines)
-        return logical_file_line_counter.count_logical_lines()
 
     def __count_physical_lines(self, file_lines):
         """
