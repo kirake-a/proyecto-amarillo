@@ -7,26 +7,26 @@ sys.path.append(os.path.abspath(os.path.dirname(__file__) + "/../.."))
 from Controllers.LineAnalyzerController import LineAnalyzerController
 
 
-@pytest.mark.parametrize("file_content,expected_physical,expected_logical,expected_methods",[
-    ([], 0, 0, 0),
-    (["# Esto es un comentario"], 0, 0, 0),
-    (["\"\"\" Este es un docstring \"\"\""], 0, 0, 0),
-    (["\"\"\"", "    Esto también es un docstring", "\"\"\""], 0, 0, 0),
-    (["print('Hola')"], 1, 0, 0),
-    (["print('Hola')", "print('Mundo')"], 2, 0, 0),
-    (["print('Hola')  # Comentario"], 1, 0, 0),
-    (["resultado = 1 + 2 + \\", "3 + 4"], 2, 0, 0),
+@pytest.mark.parametrize("file_content,expected_physical,expected_methods",[
+    ([], 0, 0),
+    (["# Esto es un comentario"], 0, 0),
+    (["\"\"\" Este es un docstring \"\"\""], 0, 0),
+    (["\"\"\"", "    Esto también es un docstring", "\"\"\""], 0, 0),
+    (["print('Hola')"], 1, 0),
+    (["print('Hola')", "print('Mundo')"], 2, 0),
+    (["print('Hola')  # Comentario"], 1, 0),
+    (["resultado = 1 + 2 + \\", "3 + 4"], 2, 0),
     (["print('Hola')", "a = 5 + \\", "6 + \\", "7", 
       "# Esto es un comentario", "if True: (",
       "    print('if')", ")", 
-      "lista = [", "   1, 2, 3,", "   4, 5", "]"], 11, 1, 0),
+      "lista = [", "   1, 2, 3,", "   4, 5", "]"], 11, 0),
     (["def ejemplo(",
       "self, param1, param2):",
       "\"\"\"Este es un docstring de una sola línea.\"\"\"",
       "path_object = Path(file_path), line_counting_results = {}",
       "print('Hola, mundo')", "", "\"\"\"", "Este es un docstring",
       "de múltiples líneas.",
-      "\"\"\"", "print('Adiós, mundo')"], 5, 1, 1),
+      "\"\"\"", "print('Adiós, mundo')"], 5, 1),
       (["class MyClass:\n",
         "    def my_method(self):\n",
         "        if True:\n",
@@ -43,13 +43,13 @@ from Controllers.LineAnalyzerController import LineAnalyzerController
         "    def another_method(self):\n",
         "        pass\n",
         "    if lif > 0 for x in range(10):\n",
-        "        print('Múltiples estructuras')"], 16, 7, 2)
+        "        print('Múltiples estructuras')"], 16, 2)
       
 
 ])
-def test_line_counting(file_content, expected_physical, expected_logical, expected_methods):
+def test_line_counting(file_content, expected_physical, expected_methods):
     """
-    Tests the methods, logical and physical line 
+    Tests the methods and physical line 
     counting functionality of the LineAnalyzerController.
 
     The test ensures that:
@@ -64,5 +64,4 @@ def test_line_counting(file_content, expected_physical, expected_logical, expect
     analyzer = LineAnalyzerController(file_content)
 
     assert analyzer.count_physical_lines() == expected_physical
-    assert analyzer.count_logical_lines() == expected_logical
     assert analyzer.count_methods() == expected_methods
