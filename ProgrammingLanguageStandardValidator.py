@@ -1,6 +1,5 @@
 from abc import ABC, abstractmethod
 
-
 class ProgrammingLanguageStandardValidator(ABC):
     """
     An abstract base class for validating 

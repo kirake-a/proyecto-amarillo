@@ -1,6 +1,5 @@
 import customtkinter as ctk
 
-
 class FileLineCounterView(ctk.CTk):
     """
     A GUI for counting physical lines and methods per class in Python files.

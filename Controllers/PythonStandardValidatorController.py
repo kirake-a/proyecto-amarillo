@@ -1,7 +1,6 @@
 from ProgrammingLanguageStandardValidator import (
     ProgrammingLanguageStandardValidator)
 
-
 class PythonStandardValidatorController(ProgrammingLanguageStandardValidator):
     """
     Controller class for validating Python file compliance with PEP 8.
