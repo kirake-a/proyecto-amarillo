@@ -1,7 +1,6 @@
 from ProgrammingLanguageStandardValidator import (
     ProgrammingLanguageStandardValidator)
 
-
 class PythonStandardValidatorController(ProgrammingLanguageStandardValidator):
     """
     Controller class for validating Python file compliance with PEP 8.
@@ -26,14 +25,9 @@ class PythonStandardValidatorController(ProgrammingLanguageStandardValidator):
         the maximum allowedline length (79 characters).
         If any line exceeds this length, the validation fails.
         """
-        is_valid = self.__validate_lenght_of_line()
+        return self.__validate_length_of_line()
 
-        if not is_valid:
-            return False
-
-        return True
-
-    def __validate_lenght_of_line(self):
+    def __validate_length_of_line(self):
         """
         Checks the length of each line in the file to ensure
         it does not exceed the PEP 8 limit of 79 characters.

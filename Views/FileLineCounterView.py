@@ -1,6 +1,5 @@
 import customtkinter as ctk
 
-
 class FileLineCounterView(ctk.CTk):
     """
     A GUI for counting physical lines and methods per class in Python files.
@@ -77,7 +76,13 @@ class FileLineCounterView(ctk.CTk):
         if file_path:
             self.__file_line_counter_controller.process_file_path(file_path)
         else:
-            self.file_label.configure(text="No valid files in the folder")
+            # self.file_label.configure(text="No valid files in the folder")
+            self.file_label = ctk.CTkLabel(
+                self.main_frame,
+                text="No valid files in the folder",
+                text_color="red"
+            )
+            self.file_label.pack()
 
     def show_metric_results(self, metric_results):
         """

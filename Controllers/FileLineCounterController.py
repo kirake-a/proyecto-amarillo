@@ -4,9 +4,6 @@ from .PythonStandardValidatorController import (
 from .LineAnalyzerController import LineAnalyzerController
 from FileReader import FileReader
 
-import re
-
-
 class FileLineCounterController:
     """
     Controller for counting physical lines and methods per class 
@@ -15,8 +12,11 @@ class FileLineCounterController:
     with Python coding standards.
     """
 
-    def __init__(self, file_line_counter_view=None,
-                 file_line_counter_model=None):
+    def __init__(
+        self,
+        file_line_counter_view=None,
+        file_line_counter_model=None
+    ):
         """
         Initializes the FileLineCounterController.
         """
@@ -68,8 +68,7 @@ class FileLineCounterController:
 
         self.__file_line_counter_model.set_line_count_results(
             line_counting_results)
-        
-        
+           
     def calculate_total_physical_lines(self, line_counting_results):
         """
         Sum the total physical lines of all file classes processed.
@@ -83,10 +82,14 @@ class FileLineCounterController:
                     total_physical_lines += physical_lines
         return "", total_physical_lines, ""
  
-
-    def __process_directory(self, directory, line_counting_results):
+    def __process_directory(
+        self,
+        directory: Path,
+        line_counting_results
+    ):
         """
-        Recursively processes a directory to count lines in all Python classes.
+        Recursively processes a directory to count lines
+        in all Python classes.
         """
         for file in directory.iterdir():
             if file.is_file() and file.suffix == ".py":
@@ -102,7 +105,6 @@ class FileLineCounterController:
         """
         file_lines = self.get_file_lines(file)
         is_valid = self.__validate_file_compliance_with_standard(file_lines)
-
 
         if is_valid:
 
@@ -122,7 +124,7 @@ class FileLineCounterController:
 
     def __validate_file_compliance_with_standard(self, file_lines):
         """
-        Validates whether a file complies with Python coding standards..
+        Validates whether a file complies with Python coding standards.
         """
         standard_validator = PythonStandardValidatorController(file_lines)
         return standard_validator.validate_compliance_with_standard()

@@ -1,6 +1,3 @@
-import re
-
-
 class LineAnalyzerController:
     """
     Analyzes a code's content to count physical lines of code.
@@ -41,7 +38,6 @@ class LineAnalyzerController:
             physical_line_count += 1
 
         return physical_line_count
-    
     
     def count_methods(self):
         """
