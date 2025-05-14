@@ -100,15 +100,25 @@ class FileLineCounterController:
     def calculate_total_physical_lines(self, line_counting_results):
         """
         Sum the total physical lines of all file classes processed.
+        Sum the total added lines of all file classes processed.
+        Sum the total deleted lines of all file classes processed.
         """
         total_physical_lines = 0
+        total_added_lines = 0
+        total_removed_lines = 0
 
         for file_path, metrics in line_counting_results.items():
-            if isinstance(metrics, tuple) and len(metrics) == 3:
-                class_name, physical_lines, methods_count = metrics
-                if isinstance(physical_lines, int):
+            if isinstance(metrics, tuple) and len(metrics) == 5:
+                _, physical_lines, _, \
+                added_lines, removed_lines = metrics
+                if isinstance(physical_lines, int) \
+                    and isinstance(added_lines, int) \
+                    and isinstance(removed_lines, int):
                     total_physical_lines += physical_lines
-        return "", total_physical_lines, "", 0, 0
+                    total_added_lines += added_lines
+                    total_removed_lines += removed_lines
+        return "", total_physical_lines, "", \
+            total_added_lines, total_removed_lines
  
     def __process_directory(
         self,
