@@ -43,11 +43,23 @@ class FileComparerController:
                     outf_new.writelines(new_lines[j1:j2])
 
                 elif tag == 'replace':
-                    outf_old.writelines(line.rstrip('\n') + '  # Line deleted\n' for line in old_lines[i1:i2])
-                    outf_new.writelines(line.rstrip('\n') + '  # Line added\n' for line in new_lines[j1:j2])
+                    outf_old.writelines(
+                        line.rstrip('\n') + \
+                            '  # Line deleted\n' for line in old_lines[i1:i2]
+                    )
+                    outf_new.writelines(
+                        line.rstrip('\n') + \
+                            '  # Line added\n' for line in new_lines[j1:j2]
+                    )
 
                 elif tag == 'delete':
-                    outf_old.writelines(line.rstrip('\n') + '  # Line deleted\n' for line in old_lines[i1:i2])
+                    outf_old.writelines(
+                        line.rstrip('\n') + \
+                            '  # Line deleted\n' for line in old_lines[i1:i2]
+                    )
 
                 elif tag == 'insert':
-                    outf_new.writelines(line.rstrip('\n') + '  # Line added\n' for line in new_lines[j1:j2])
+                    outf_new.writelines(
+                        line.rstrip('\n') + \
+                            '  # Line added\n' for line in new_lines[j1:j2]
+                    )
