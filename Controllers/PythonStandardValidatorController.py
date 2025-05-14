@@ -33,7 +33,7 @@ class PythonStandardValidatorController(ProgrammingLanguageStandardValidator):
         it does not exceed the PEP 8 limit of 79 characters.
         """
         for line in self.file:
-            if len(line) > self.MAX_CHAR_PER_LINE:
+            if len(line.strip()) > self.MAX_CHAR_PER_LINE:
                 return False
 
         return True
