@@ -1,7 +1,7 @@
 from pathlib import Path
 from typing import Optional
 
-from Controllers import FileComparerController
+from Controllers.FileComparerController import FileComparerController
 from Views import FileLineCounterView
 from Models import FileLineCounterModel
 from .PythonStandardValidatorController import (
@@ -27,7 +27,7 @@ class FileLineCounterController:
         """
         self.__file_line_counter_view = file_line_counter_view
         self.__file_line_counter_model = file_line_counter_model
-        self.__file_comparer_controller = FileComparerController
+        self.__file_comparer_controller = FileComparerController()
 
     def set_file_line_counter_view(
         self,
@@ -67,22 +67,25 @@ class FileLineCounterController:
         line_counting_results = {}
 
         if path_old_object.is_dir():
-            self.__process_directory(path_old_object, line_counting_results)
+            self.__process_directory(
+                path_old_object,
+                path_new_object,
+                line_counting_results
+            )
         elif path_old_object.is_file():
             if path_old_object.suffix == ".py":
                 # Check if the file exists in the new project
                 if self.file_exists_anywhere(path_old_object, path_new_object):
-                    print("File exists in new project")
                     # Find the path to the new file
                     path_to_new_file = self.find_matching_file(
                         path_old_object,
                         path_new_object
                     )
                     # Metrics for the new file
-                    new_file_metrics = self.get_file_metrics(path_to_new_file)
-                    line_counting_results[path_to_new_file.name] = new_file_metrics
-                file_metrics = self.get_file_metrics(path_old_object)
-                line_counting_results[path_old_object] = file_metrics
+                    new_file_metrics = self.get_file_metrics(
+                        path_to_new_file, path_old_object
+                    )
+                    line_counting_results[path_old_object] = new_file_metrics
             else:
                 line_counting_results[path_old_object] = \
                     ("error","Not a Python file", "None")
@@ -91,7 +94,8 @@ class FileLineCounterController:
         self.calculate_total_physical_lines(line_counting_results)
 
         self.__file_line_counter_model.set_line_count_results(
-            line_counting_results)
+            line_counting_results
+        )
            
     def calculate_total_physical_lines(self, line_counting_results):
         """
@@ -104,25 +108,41 @@ class FileLineCounterController:
                 class_name, physical_lines, methods_count = metrics
                 if isinstance(physical_lines, int):
                     total_physical_lines += physical_lines
-        return "", total_physical_lines, ""
+        return "", total_physical_lines, "", 0, 0
  
     def __process_directory(
         self,
-        directory: Path,
+        old_directory: Path,
+        new_directory: Path,
         line_counting_results
     ):
         """
         Recursively processes a directory to count lines
         in all Python classes.
         """
-        for file in directory.iterdir():
+        for file in old_directory.iterdir():
             if file.is_file() and file.suffix == ".py":
-                file_metrics = self.get_file_metrics(file)
-                line_counting_results[file] = file_metrics
+                if self.file_exists_anywhere(file, new_directory):
+                    path_to_new_file = self.find_matching_file(
+                        file,
+                        new_directory
+                    )
+                    file_metrics = self.get_file_metrics(
+                        path_to_new_file,
+                        file
+                    )
+                    line_counting_results[file] = file_metrics
+                else:
+                    line_counting_results[file] = \
+                        ("Deleted", 0, 0, 0, 0)
             elif file.is_dir():
-                self.__process_directory(file, line_counting_results)
+                self.__process_directory(
+                    file,
+                    new_directory,
+                    line_counting_results
+                )
 
-    def get_file_metrics(self, new_file_path):
+    def get_file_metrics(self, new_file_path, old_file_path):
         """
         Retrieves the physical line count of a Python class.
         Retrieves the class name and methods count of a Python class.
@@ -136,9 +156,16 @@ class FileLineCounterController:
             physical_line_count = self.__count_physical_lines(file_lines)
             methods_count = self.__count_methods(file_lines)
 
-            return class_name, physical_line_count, methods_count
+            added_lines, removed_lines = \
+                self.__file_comparer_controller.compare_files(
+                    new_file_path,
+                    old_file_path
+                )
 
-        return "Doesn't comply with Standard", "None", "None"
+            return class_name, physical_line_count, \
+            methods_count, added_lines, removed_lines
+
+        return "Doesn't comply with Standard", "None", "None", 0, 0
     
     def get_file_lines(self, file_path):
         """
@@ -197,7 +224,9 @@ class FileLineCounterController:
 
         old_file_name = old_file.name
 
-        return any(file.name == old_file_name for file in new_project_root.rglob("*.py"))
+        return any(
+            file.name == old_file_name for file in new_project_root.rglob("*.py")
+        )
     
     def find_matching_file(
         self,
@@ -236,4 +265,5 @@ class FileLineCounterController:
             self.__file_line_counter_model.get_line_count_results()
 
         self.__file_line_counter_view.show_metric_results(
-            line_counting_results)
+            line_counting_results
+        )
