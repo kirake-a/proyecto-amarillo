@@ -1,7 +1,10 @@
 class FileLineCounterModel:
     """Model class responsible for storing and managing file line count."""
 
-    def __init__(self, file_line_counter_controller):
+    def __init__(
+        self,
+        file_line_counter_controller
+    ):
         """
         Initializes the FileLineCounterModel.
         """
