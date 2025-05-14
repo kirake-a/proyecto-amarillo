@@ -1,4 +1,7 @@
 import customtkinter as ctk
+from typing import Dict, Tuple
+
+THRESHOLD = 5
 
 class FileLineCounterView(ctk.CTk):
     """
@@ -38,22 +41,31 @@ class FileLineCounterView(ctk.CTk):
         """
         self.header = ctk.CTkLabel(
             self.main_frame,
-            text="Enter The FilePath of your Python Project!",
+            text="Enter the paths for the " \
+            "previous and current project versions",
             font=("Helvetica", 24, "bold"),
         )
         self.header.pack(pady=(40, 20))
 
-        self.file_entry = ctk.CTkEntry(
+        self.old_path_entry = ctk.CTkEntry(
             self.main_frame,
             width=300,
             height=45,
-            placeholder_text="Enter file path...",
+            placeholder_text="Previous version path...",
         )
-        self.file_entry.pack(pady=10)
+        self.old_path_entry.pack(pady=10)
+    
+        self.new_path_entry = ctk.CTkEntry(
+            self.main_frame,
+            width=300,
+            height=45,
+            placeholder_text="Current version path...",
+        )
+        self.new_path_entry.pack(pady=10)
 
         self.file_button = ctk.CTkButton(
             self.main_frame,
-            text="Get Metrics",
+            text="Compare versions",
             command=self.process_file_path_from_user,
             width=300,
             height=45,
@@ -71,10 +83,14 @@ class FileLineCounterView(ctk.CTk):
 
         If the file path is not valid, it displays an error message.
         """
-        file_path = self.file_entry.get().strip()
+        new_file_path = self.new_path_entry.get().strip()
+        old_file_path = self.old_path_entry.get().strip()
 
-        if file_path:
-            self.__file_line_counter_controller.process_file_path(file_path)
+        if new_file_path and old_file_path:
+            self.__file_line_counter_controller.process_file_path(
+                old_file_path,
+                new_file_path
+            )
         else:
             # self.file_label.configure(text="No valid files in the folder")
             self.file_label = ctk.CTkLabel(
@@ -88,7 +104,7 @@ class FileLineCounterView(ctk.CTk):
         """
         Displays the metric results in a new window.
         This method generates a new window containing a scrollable table
-        displaying thefilename along with its physical line and methods 
+        displaying the filename along with its physical line and methods 
         counts.
         """
         self.__create_result_window()
@@ -112,17 +128,36 @@ class FileLineCounterView(ctk.CTk):
     def __create_scrollable_table(self):
         """
         Creates a scrollable table for displaying metric results.
+        Adds both vertical and horizontal scrollbars.
         """
-        canvas = ctk.CTkCanvas(self.result_window)
+        # Outer frame to hold everything
+        outer_frame = ctk.CTkFrame(self.result_window)
+        outer_frame.pack(fill="both", expand=True)
+
+        # Canvas for scrollable area
+        canvas = ctk.CTkCanvas(outer_frame)
         canvas.pack(side="left", fill="both", expand=True)
 
-        scrollbar = ctk.CTkScrollbar(self.result_window,
-                                     command=canvas.yview)
-        scrollbar.pack(side="right", fill="y")
-        canvas.configure(yscrollcommand=scrollbar.set)
+        # Vertical scrollbar
+        v_scrollbar = ctk.CTkScrollbar(outer_frame, command=canvas.yview)
+        v_scrollbar.pack(side="right", fill="y")
 
+        # Horizontal scrollbar
+        h_scrollbar = ctk.CTkScrollbar(self.result_window, command=canvas.xview, orientation="horizontal")
+        h_scrollbar.pack(side="bottom", fill="x")
+
+        # Configure canvas scroll commands
+        canvas.configure(yscrollcommand=v_scrollbar.set, xscrollcommand=h_scrollbar.set)
+
+        # Frame inside the canvas
         table_frame = ctk.CTkFrame(canvas)
         canvas.create_window((0, 0), window=table_frame, anchor="nw")
+
+        # Update scrollregion when size changes
+        def on_frame_configure(event):
+            canvas.configure(scrollregion=canvas.bbox("all"))
+
+        table_frame.bind("<Configure>", on_frame_configure)
 
         return canvas, table_frame
 
@@ -135,7 +170,9 @@ class FileLineCounterView(ctk.CTk):
         and 'Total Physical Lines in the Program'.
         """
         headers = ["File", "Class", "Methods", 
-                    "Physical Lines",]
+                    "Physical Lines", "Deleted Lines",
+                    "Added Lines", "Major Changes"
+                ]
         row_padding, col_padding = 5, 10
 
         for col_index, header in enumerate(headers):
@@ -155,29 +192,46 @@ class FileLineCounterView(ctk.CTk):
         methods counts and the total number of physical lines
         in the proyect.
         """
-        row_padding, col_padding = 5, 10
+        ROW_PADDING, COL_PADDING = 5, 10
 
         for row_index, (file_name, metrics) in enumerate(
-                metric_results.items(), start=1):
-            class_name, physical_count, method_count = metrics
+                metric_results.items(), start=1
+        ):
+            print(f"DEBUG - {file_name} -> {metrics}")
+            class_name, physical_count, method_count, added_lines, removed_lines = metrics
+            has_changes = (
+                int(added_lines) + int(removed_lines)
+            ) > THRESHOLD
 
             ctk.CTkLabel(table_frame, text=file_name).grid(
-                row=row_index, column=0, padx=col_padding,
-                pady=row_padding
+                row=row_index, column=0, padx=COL_PADDING,
+                pady=ROW_PADDING
             )
             ctk.CTkLabel(table_frame, text=class_name).grid(
-                row=row_index, column=1, padx=col_padding,
-                pady=row_padding
+                row=row_index, column=1, padx=COL_PADDING,
+                pady=ROW_PADDING
             )
-         
             ctk.CTkLabel(table_frame, text=str(method_count)).grid(
-                row=row_index, column=2, padx=col_padding,
-                pady=row_padding
+                row=row_index, column=2, padx=COL_PADDING,
+                pady=ROW_PADDING
             )
             ctk.CTkLabel(table_frame, text=str(physical_count)).grid(
-                row=row_index, column=3, padx=col_padding,
-                pady=row_padding
+                row=row_index, column=3, padx=COL_PADDING,
+                pady=ROW_PADDING
             )
+            ctk.CTkLabel(table_frame, text=str(added_lines)).grid(
+                row=row_index, column=4, padx=COL_PADDING,
+                pady=ROW_PADDING
+            )
+            ctk.CTkLabel(table_frame, text=str(removed_lines)).grid(
+                row=row_index, column=5, padx=COL_PADDING,
+                pady=ROW_PADDING
+            )
+            ctk.CTkLabel(table_frame, text=str(has_changes)).grid(
+                row=row_index, column=6, padx=COL_PADDING,
+                pady=ROW_PADDING
+            )
+            
         
     def set_controller(self, controller):
         """
