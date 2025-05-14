@@ -1,7 +1,6 @@
 import customtkinter as ctk
-from typing import Dict, Tuple
 
-THRESHOLD = 5
+THRESHOLD = 0.33
 
 class FileLineCounterView(ctk.CTk):
     """
@@ -199,9 +198,9 @@ class FileLineCounterView(ctk.CTk):
         ):
             print(f"DEBUG - {file_name} -> {metrics}")
             class_name, physical_count, method_count, added_lines, removed_lines = metrics
-            has_changes = (
+            has_changes = physical_count * THRESHOLD < (
                 int(added_lines) + int(removed_lines)
-            ) > THRESHOLD
+            )
 
             ctk.CTkLabel(table_frame, text=file_name).grid(
                 row=row_index, column=0, padx=COL_PADDING,
