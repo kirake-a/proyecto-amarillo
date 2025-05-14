@@ -130,27 +130,48 @@ class FileLineCounterController:
         Recursively processes a directory to count lines
         in all Python classes.
         """
-        for file in old_directory.iterdir():
-            if file.is_file() and file.suffix == ".py":
-                if self.file_exists_anywhere(file, new_directory):
-                    path_to_new_file = self.find_matching_file(
-                        file,
-                        new_directory
-                    )
-                    file_metrics = self.get_file_metrics(
-                        path_to_new_file,
-                        file
-                    )
-                    line_counting_results[file] = file_metrics
-                else:
-                    line_counting_results[file] = \
-                        ("Deleted", 0, 0, 0, 0)
-            elif file.is_dir():
-                self.__process_directory(
-                    file,
-                    new_directory,
-                    line_counting_results
-                )
+        old_files = {file.relative_to(old_directory): file for file in old_directory.rglob("*.py")}
+        new_files = {file.relative_to(new_directory): file for file in new_directory.rglob("*.py")}
+
+        # Common files (they are in both)
+        for relative_path in old_files.keys() & new_files.keys():
+            old_file = old_files[relative_path]
+            new_file = new_files[relative_path]
+            file_metrics = self.get_file_metrics(new_file, old_file)
+            line_counting_results[old_file] = file_metrics
+
+        # Deleted files (they are in old but not in new)
+        for relative_path in old_files.keys() - new_files.keys():
+            old_file = old_files[relative_path]
+            line_counting_results[old_file] = ("Deleted", 0, 0, 0, 0)
+
+        # Files added (they are in new but not in old)
+        for relative_path in new_files.keys() - old_files.keys():
+            new_file = new_files[relative_path]
+            new_lines, methods_count = self.get_file_basic_metrics(new_file)
+            line_counting_results[new_file] = (
+                "New file",
+                new_lines,
+                methods_count,
+                0,
+                new_lines
+            )
+
+    def get_file_basic_metrics(self, file_path):
+        """
+        Retrieves the physical line count of a Python class.
+        Retrieves the number of methods in a Python class.
+        """
+        file_lines = self.get_file_lines(file_path)
+        is_valid = self.__validate_file_compliance_with_standard(file_lines)
+        
+        if not is_valid:
+            return "Doesn't comply with Standard", "None", "None", 0, 0
+        
+        new_lines = self.__count_physical_lines(file_lines)
+        methods_count = self.__count_methods(file_lines)
+
+        return new_lines, methods_count
 
     def get_file_metrics(self, new_file_path, old_file_path):
         """
@@ -168,9 +189,14 @@ class FileLineCounterController:
 
             added_lines, removed_lines = \
                 self.__file_comparer_controller.compare_files(
-                    new_file_path,
-                    old_file_path
+                    old_file_path,
+                    new_file_path
                 )
+            
+            self.__file_comparer_controller.add_modification_comments(
+                old_file_path, 
+                new_file_path
+            )
 
             return class_name, physical_line_count, \
             methods_count, added_lines, removed_lines
