@@ -7,7 +7,7 @@ from Models import FileLineCounterModel
 from .PythonStandardValidatorController import (
     PythonStandardValidatorController)
 from .LineAnalyzerController import LineAnalyzerController
-from FileReader import FileReader
+from Utils.FileReader import FileReader
 
 class FileLineCounterController:
     """

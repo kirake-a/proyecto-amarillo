@@ -1,7 +1,6 @@
 import customtkinter as ctk
-from typing import Dict, Tuple
 
-THRESHOLD = 5
+from Utils.Constants import THRESHOLD
 
 class FileLineCounterView(ctk.CTk):
     """
