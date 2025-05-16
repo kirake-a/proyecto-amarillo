@@ -1,6 +1,6 @@
 import customtkinter as ctk
 
-THRESHOLD = 0.33
+from Utils.Constants import THRESHOLD
 
 class FileLineCounterView(ctk.CTk):
     """

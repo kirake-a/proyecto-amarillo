@@ -7,7 +7,7 @@ from Models import FileLineCounterModel
 from .PythonStandardValidatorController import (
     PythonStandardValidatorController)
 from .LineAnalyzerController import LineAnalyzerController
-from FileReader import FileReader
+from Utils.FileReader import FileReader
 
 class FileLineCounterController:
     """
@@ -193,10 +193,10 @@ class FileLineCounterController:
                     new_file_path
                 )
             
-            # self.__file_comparer_controller.add_modification_comments(
-            #     old_file_path, 
-            #     new_file_path
-            # )
+            self.__file_comparer_controller.add_modification_comments(
+                old_file_path, 
+                new_file_path
+            )
 
             return class_name, physical_line_count, \
             methods_count, added_lines, removed_lines
