@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import customtkinter as ctk
 
 from Utils.Constants import THRESHOLD
@@ -120,9 +122,24 @@ class FileLineCounterView(ctk.CTk):
         Creates a new window to display the results of the metrics.
         This window contains a table where the results will be shown.
         """
+        old_path_name = self.get_folder_name(
+            self.old_path_entry.get().strip()
+        )
+        new_path_name = self.get_folder_name(
+            self.new_path_entry.get().strip()
+        )
+        custom_title = f"{old_path_name} vs {new_path_name}"
         self.result_window = ctk.CTkToplevel(self)
-        self.result_window.title("Metric Results")
+        self.result_window.title(custom_title)
         self.result_window.geometry("600x400")
+
+        title_label = ctk.CTkLabel(
+            self.result_window,
+            text="Comparing " + custom_title,
+            font=("Helvetica", 20, "bold"),
+            text_color="white"
+        )
+        title_label.pack(pady=(20, 10))
 
     def __create_scrollable_table(self):
         """
@@ -230,8 +247,13 @@ class FileLineCounterView(ctk.CTk):
                 row=row_index, column=6, padx=COL_PADDING,
                 pady=ROW_PADDING
             )
-            
-        
+
+    def get_folder_name(self, path: str) -> str:
+        """
+        Returns the folder name from the given path.
+        """
+        return Path(path).name
+                
     def set_controller(self, controller):
         """
         Sets the controller for handling file path processing
