@@ -38,9 +38,9 @@ Now you can [develop](https://drive.google.com/file/d/1iRaDuLD3nGDrE7amMOMymPsEe
 
 Below are reference documents for a better understanding of the software
 
-- 📘 [User Manual]()
+- 📘 [User Manual](https://drive.google.com/file/d/1ifrtXt85fqZzfBg_-Dw4XhP9f2VE4okW/view?usp=drive_link)
 - 📜 [Use Case Document]()
-- 🏠 [Software Architecture Document]()
+- 🏠 [Software Architecture Document](https://drive.google.com/file/d/1EthuylpJR3ZsXpl995hnkcDuEO-J3DNV/view?usp=drive_link)
 - 📝 [Documentation Standard](https://drive.google.com/file/d/1yCq_kNTOEDRO-jlwlk5y-Zp4QNNvQqFE/view?usp=drive_link)  
 - 💻 [Coding Standard](https://drive.google.com/file/d/1iRaDuLD3nGDrE7amMOMymPsEeLJml56V/view?usp=drive_link)  
 - 🔢 [Counting Standard](https://drive.google.com/file/d/125yMhLONDSrJn3Sx1Hwr5cDdFtnnbFzX/view?usp=drive_link)  
