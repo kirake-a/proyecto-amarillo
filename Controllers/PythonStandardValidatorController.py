@@ -1,6 +1,8 @@
 from Utils.ProgrammingLanguageStandardValidator import (
     ProgrammingLanguageStandardValidator)
 
+from Utils.Constants import MAX_CHAR_PER_LINE_STD
+
 class PythonStandardValidatorController(ProgrammingLanguageStandardValidator):
     """
     Controller class for validating Python file compliance with PEP 8.
@@ -15,7 +17,6 @@ class PythonStandardValidatorController(ProgrammingLanguageStandardValidator):
         the specified file.
         """
         super().__init__(file)
-        self.MAX_CHAR_PER_LINE = 79
 
     def validate_compliance_with_standard(self):
         """
@@ -33,7 +34,7 @@ class PythonStandardValidatorController(ProgrammingLanguageStandardValidator):
         it does not exceed the PEP 8 limit of 79 characters.
         """
         for line in self.file:
-            if len(line.strip()) > self.MAX_CHAR_PER_LINE:
+            if len(line.strip()) > MAX_CHAR_PER_LINE_STD:
                 return False
 
         return True
