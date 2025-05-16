@@ -1,2 +1,2 @@
-    customtkinter>=5.1.0
-    pytest>=8.3.0
+customtkinter>=5.1.0
+pytest>=8.3.0
