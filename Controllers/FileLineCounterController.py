@@ -81,7 +81,7 @@ class FileLineCounterController:
                         path_new_object
                     )
                     new_file_metrics = self.get_file_metrics(
-                        path_old_object, path_to_new_file
+                        path_to_new_file, path_old_object
                     )
                     line_counting_results[path_old_object] = new_file_metrics
             else:
@@ -143,7 +143,10 @@ class FileLineCounterController:
 
         for relative_path in old_files.keys() - new_files.keys():
             old_file = old_files[relative_path]
-            line_counting_results[old_file] = ("Deleted", 0, 0, 0, 0)
+            class_name = self.__file_analyzer_controller.extract_class(
+                self.get_file_lines(relative_path)
+            )
+            line_counting_results[old_file] = (f"Deleted ({class_name})", 0, 0, 0, 0)
 
         for relative_path in new_files.keys() - old_files.keys():
             new_file = new_files[relative_path]
@@ -157,27 +160,31 @@ class FileLineCounterController:
         """
         file_lines = self.get_file_lines(file_path)
         is_valid = self.__validate_file_compliance_with_standard(file_lines)
+
+        class_name = self.__file_analyzer_controller.extract_class(
+            file_lines
+        )
         
         if not is_valid:
-            return "New file doesn't comply with Standard", "None", "None", 0, 0
+            return "New file doesn't comply with Standard", 0, 0, 0, 0
         
         new_lines = \
             self.__file_analyzer_controller.count_physical_lines(file_lines)
         methods_count = \
             self.__file_analyzer_controller.count_methods(file_lines)
 
-        return "New file", new_lines, methods_count, 0, new_lines
+        return f"New file ({class_name})", new_lines, methods_count, 0, new_lines
 
-    def get_file_metrics(self, old_file_path, new_file_path):
+    def get_file_metrics(self, new_file_path, old_file_path):
         """
         Retrieves the physical line count of a Python class.
         Retrieves the class name and methods count of a Python class.
         """
-        file_lines_old_file = self.get_file_lines(old_file_path)
-        file_lines_new_file = self.get_file_lines(new_file_path)
-
         self.__file_comparer_controller.format_file_long_lines(old_file_path)
         self.__file_comparer_controller.format_file_long_lines(new_file_path)
+
+        file_lines_old_file = self.get_file_lines(old_file_path)
+        file_lines_new_file = self.get_file_lines(new_file_path)
 
         is_valid_old_file = self.__validate_file_compliance_with_standard(file_lines_old_file)
         is_valid_new_file = self.__validate_file_compliance_with_standard(file_lines_new_file)
@@ -200,7 +207,7 @@ class FileLineCounterController:
             return class_name, physical_line_count, \
             methods_count, added_lines, removed_lines
 
-        return "Doesn't comply with Standard", "None", "None", 0, 0
+        return "Doesn't comply with Standard", 0, 0, 0, 0
     
     def get_file_lines(self, file_path):
         """
