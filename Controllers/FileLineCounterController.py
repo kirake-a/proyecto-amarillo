@@ -28,6 +28,7 @@ class FileLineCounterController:
         self.__file_line_counter_view = file_line_counter_view
         self.__file_line_counter_model = file_line_counter_model
         self.__file_comparer_controller = FileComparerController()
+        self.__file_analyzer_controller = LineAnalyzerController()
 
     def set_file_line_counter_view(
         self,
@@ -130,8 +131,12 @@ class FileLineCounterController:
         Recursively processes a directory to count lines
         in all Python classes.
         """
-        old_files = {file.relative_to(old_directory): file for file in old_directory.rglob("*.py")}
-        new_files = {file.relative_to(new_directory): file for file in new_directory.rglob("*.py")}
+        old_files = {
+            file.relative_to(old_directory): file for file in old_directory.rglob("*.py")
+        }
+        new_files = {
+            file.relative_to(new_directory): file for file in new_directory.rglob("*.py")
+        }
 
         # Common files (they are in both)
         for relative_path in old_files.keys() & new_files.keys():
@@ -148,14 +153,8 @@ class FileLineCounterController:
         # Files added (they are in new but not in old)
         for relative_path in new_files.keys() - old_files.keys():
             new_file = new_files[relative_path]
-            new_lines, methods_count = self.get_file_basic_metrics(new_file)
-            line_counting_results[new_file] = (
-                "New file",
-                new_lines,
-                methods_count,
-                0,
-                new_lines
-            )
+            new_file_metrics = self.get_file_basic_metrics(new_file)
+            line_counting_results[new_file] = new_file_metrics
 
     def get_file_basic_metrics(self, file_path):
         """
@@ -166,12 +165,14 @@ class FileLineCounterController:
         is_valid = self.__validate_file_compliance_with_standard(file_lines)
         
         if not is_valid:
-            return "Doesn't comply with Standard", "None", "None", 0, 0
+            return "New file doesn't comply with Standard", "None", "None", 0, 0
         
-        new_lines = self.__count_physical_lines(file_lines)
-        methods_count = self.__count_methods(file_lines)
+        new_lines = \
+            self.__file_analyzer_controller.count_physical_lines(file_lines)
+        methods_count = \
+            self.__file_analyzer_controller.count_methods(file_lines)
 
-        return new_lines, methods_count
+        return "New file", new_lines, methods_count, 0, new_lines
 
     def get_file_metrics(self, new_file_path, old_file_path):
         """
@@ -183,9 +184,8 @@ class FileLineCounterController:
         is_valid = self.__validate_file_compliance_with_standard(file_lines)
 
         if is_valid:
-            class_name = self.__extract_class(file_lines)
-            physical_line_count = self.__count_physical_lines(file_lines)
-            methods_count = self.__count_methods(file_lines)
+            class_name, physical_line_count, methods_count = \
+                self.__file_analyzer_controller.get_all_data(file_lines)
 
             added_lines, removed_lines = \
                 self.__file_comparer_controller.compare_files(
@@ -216,27 +216,6 @@ class FileLineCounterController:
         """
         standard_validator = PythonStandardValidatorController(file_lines)
         return standard_validator.validate_compliance_with_standard()
-
-    def __count_physical_lines(self, file_lines):
-        """
-        Counts the physical lines of code in a class.
-        """
-        physical_file_line_counter = LineAnalyzerController(file_lines)
-        return physical_file_line_counter.count_physical_lines()
-    
-    def __count_methods(self, file_lines):
-        """
-        Counts the methods in a class.
-        """
-        methods_counter = LineAnalyzerController(file_lines)
-        return methods_counter.count_methods()
-    
-    def __extract_class(self, file_lines):
-        """
-        Extract the class name.
-        """
-        class_name_extractor = LineAnalyzerController(file_lines)
-        return class_name_extractor.extract_class()
     
     def file_exists_anywhere(
         self,

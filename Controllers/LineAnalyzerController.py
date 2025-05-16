@@ -3,13 +3,7 @@ class LineAnalyzerController:
     Analyzes a code's content to count physical lines of code.
     """
 
-    def __init__(self, content):
-        """
-        Initializes the LineAnalyzerController with the code content.
-        """
-        self.__content = content
-
-    def count_physical_lines(self):
+    def count_physical_lines(self, content):
         """
         Counts the number of physical lines of code,
         ignoring blank lines, comments, and docstrings.
@@ -17,7 +11,7 @@ class LineAnalyzerController:
         physical_line_count = 0
         in_docstring = False
 
-        for line in self.__content:
+        for line in content:
             stripped_line = line.strip()
 
             if not stripped_line or stripped_line.startswith("#"):
@@ -39,14 +33,14 @@ class LineAnalyzerController:
 
         return physical_line_count
     
-    def count_methods(self):
+    def count_methods(self, content):
         """
         Counts the number of methods in a class,
         considering only  method definitions.
         """
         methods_count = 0 
 
-        for line in self.__content:
+        for line in content:
             stripped_line = line.strip()
 
             if stripped_line.startswith("def "):
@@ -54,11 +48,11 @@ class LineAnalyzerController:
        
         return methods_count   
 
-    def extract_class(self):
+    def extract_class(self, content):
         """
         Extract the name class of each file.
         """
-        for line in self.__content:
+        for line in content:
             stripped_line = line.strip()
 
             if stripped_line.startswith("class "):
@@ -66,3 +60,13 @@ class LineAnalyzerController:
                 return class_name
             
         return "No class" 
+    
+    def get_all_data(self, content):
+        """
+        Get all data from the file.
+        """
+        physical_lines = self.count_physical_lines(content)
+        methods = self.count_methods(content)
+        class_name = self.extract_class(content)
+
+        return class_name, physical_lines, methods
