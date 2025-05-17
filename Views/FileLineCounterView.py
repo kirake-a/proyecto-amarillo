@@ -1,8 +1,11 @@
-from pathlib import Path
+import logging
 
 import customtkinter as ctk
 
+from pathlib import Path
 from Utils.Constants import THRESHOLD
+
+logging.basicConfig(level=logging.INFO)
 
 class FileLineCounterView(ctk.CTk):
     """
@@ -93,7 +96,6 @@ class FileLineCounterView(ctk.CTk):
                 new_file_path
             )
         else:
-            # self.file_label.configure(text="No valid files in the folder")
             self.file_label = ctk.CTkLabel(
                 self.main_frame,
                 text="No valid files in the folder",
@@ -146,30 +148,23 @@ class FileLineCounterView(ctk.CTk):
         Creates a scrollable table for displaying metric results.
         Adds both vertical and horizontal scrollbars.
         """
-        # Outer frame to hold everything
         outer_frame = ctk.CTkFrame(self.result_window)
         outer_frame.pack(fill="both", expand=True)
 
-        # Canvas for scrollable area
         canvas = ctk.CTkCanvas(outer_frame)
         canvas.pack(side="left", fill="both", expand=True)
 
-        # Vertical scrollbar
         v_scrollbar = ctk.CTkScrollbar(outer_frame, command=canvas.yview)
         v_scrollbar.pack(side="right", fill="y")
 
-        # Horizontal scrollbar
         h_scrollbar = ctk.CTkScrollbar(self.result_window, command=canvas.xview, orientation="horizontal")
         h_scrollbar.pack(side="bottom", fill="x")
 
-        # Configure canvas scroll commands
         canvas.configure(yscrollcommand=v_scrollbar.set, xscrollcommand=h_scrollbar.set)
 
-        # Frame inside the canvas
         table_frame = ctk.CTkFrame(canvas)
         canvas.create_window((0, 0), window=table_frame, anchor="nw")
 
-        # Update scrollregion when size changes
         def on_frame_configure(event):
             canvas.configure(scrollregion=canvas.bbox("all"))
 
@@ -208,44 +203,44 @@ class FileLineCounterView(ctk.CTk):
         methods counts and the total number of physical lines
         in the proyect.
         """
-        ROW_PADDING, COL_PADDING = 5, 10
+        row_padding, col_padding = 5, 10
 
         for row_index, (file_name, metrics) in enumerate(
                 metric_results.items(), start=1
         ):
-            print(f"DEBUG - {file_name} -> {metrics}")
+            logging.info(f"DEBUG - {file_name} -> {metrics}")
             class_name, physical_count, method_count, added_lines, removed_lines = metrics
-            has_changes = physical_count * THRESHOLD < (
+            has_changes = int(physical_count) * THRESHOLD < (
                 int(added_lines) + int(removed_lines)
             )
 
             ctk.CTkLabel(table_frame, text=file_name).grid(
-                row=row_index, column=0, padx=COL_PADDING,
-                pady=ROW_PADDING
+                row=row_index, column=0, padx=col_padding,
+                pady=row_padding
             )
             ctk.CTkLabel(table_frame, text=class_name).grid(
-                row=row_index, column=1, padx=COL_PADDING,
-                pady=ROW_PADDING
+                row=row_index, column=1, padx=col_padding,
+                pady=row_padding
             )
             ctk.CTkLabel(table_frame, text=str(method_count)).grid(
-                row=row_index, column=2, padx=COL_PADDING,
-                pady=ROW_PADDING
+                row=row_index, column=2, padx=col_padding,
+                pady=row_padding
             )
             ctk.CTkLabel(table_frame, text=str(physical_count)).grid(
-                row=row_index, column=3, padx=COL_PADDING,
-                pady=ROW_PADDING
+                row=row_index, column=3, padx=col_padding,
+                pady=row_padding
             )
             ctk.CTkLabel(table_frame, text=str(added_lines)).grid(
-                row=row_index, column=4, padx=COL_PADDING,
-                pady=ROW_PADDING
+                row=row_index, column=4, padx=col_padding,
+                pady=row_padding
             )
             ctk.CTkLabel(table_frame, text=str(removed_lines)).grid(
-                row=row_index, column=5, padx=COL_PADDING,
-                pady=ROW_PADDING
+                row=row_index, column=5, padx=col_padding,
+                pady=row_padding
             )
             ctk.CTkLabel(table_frame, text=str(has_changes)).grid(
-                row=row_index, column=6, padx=COL_PADDING,
-                pady=ROW_PADDING
+                row=row_index, column=6, padx=col_padding,
+                pady=row_padding
             )
 
     def get_folder_name(self, path: str) -> str:
