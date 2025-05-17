@@ -1,7 +1,11 @@
+import logging
+
 import customtkinter as ctk
 
 from pathlib import Path
 from Utils.Constants import THRESHOLD
+
+logging.basicConfig(level=logging.INFO)
 
 class FileLineCounterView(ctk.CTk):
     """
@@ -204,7 +208,7 @@ class FileLineCounterView(ctk.CTk):
         for row_index, (file_name, metrics) in enumerate(
                 metric_results.items(), start=1
         ):
-            print(f"DEBUG - {file_name} -> {metrics}")
+            logging.info(f"DEBUG - {file_name} -> {metrics}")
             class_name, physical_count, method_count, added_lines, removed_lines = metrics
             has_changes = int(physical_count) * THRESHOLD < (
                 int(added_lines) + int(removed_lines)
